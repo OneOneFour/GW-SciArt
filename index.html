@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sci Art Project</title>
+    <link rel="stylesheet" href="assets/style.css">
+  </head>
+  <body>
+      <div class="control-panel">
+        <label for="speed">Speed:</label>
+        <input id='speedslider' type="range" name="speed" min="0" max="25" step="0.5">
+        <label for="N">Buoyancy Frequency:</label>
+        <input id='nslider' type="range" name="N" min="0" max="25" step="0.5">
+        <label for="seed">Random Seed:</label>
+        <input id='seedinput' type="text"/>
+        <button id="randomizer">Random</button>
+      </div>
+    <canvas id="maincanvas"></canvas>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
