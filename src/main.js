@@ -200,7 +200,7 @@ function drawFlowGradient(psi,orography,styles,steps=1,){
         ctx.lineTo(0,y0);
         for(let i=0; i<psi[level].length; i++){
             let x = (i*canvas.width)/(orography.length-1);
-            let y = ystart - psi[level][i]*scaleFactor;
+            let y = ystart - psi[level][i]*scaleFactor/25;
             ctx.lineTo(x,y)
         }
         ctx.closePath();

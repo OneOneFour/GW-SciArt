@@ -53,7 +53,7 @@ function spectralSolve(orographyM,spatialWidth,verticalHeight,verticalResolution
         }
         wz.push(ifft(w).map((x)=>x.re));
         uz.push(ifft(u).map((x)=>x.re));
-        psiz.push(ifft(psi).map((x)=>x.re/u0));
+        psiz.push(ifft(psi).map((x)=>x.re));
     }
 
     return {wz:wz,uz:uz,psiz:psiz}
