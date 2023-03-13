@@ -1,7 +1,7 @@
 name: Generate & Deploy
 on: 
   push:
-    branches: [master]
+    branches: [main]
 
 jobs:
   gen-and-deploy:
