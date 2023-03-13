@@ -25,31 +25,38 @@ function fftfreq(n,dt=1){
 
 function spectralSolve(orographyM,spatialWidth,verticalHeight,verticalResolution,N2,u0){
     let k_mag = fft(orographyM);
-    let k = fftfreq(orographyM.length,spatialWidth/orographyM.length);
+    let k = fftfreq(orographyM.length,spatialWidth/orographyM.length).map((x)=>2*pi*x);
     k_mag[0] = complex(0);
     let m2 = k.map((x) => add(N2/(u0*u0), multiply(-1,pow(x,2))));
     let m = m2.map((x,i) => multiply(complex(sqrt(x)),(2*((k[i] > 0)|(x<0))-1)));
     let wsurf = k_mag.map((x,i) => multiply(complex('1i'),multiply(k[i],multiply(u0,x))));
-    let wz = [wsurf];
+    let wz = [];
     let uz = [];
-    for(let zi=1; zi<verticalResolution;zi++){
+    let psiz = [];
+    for(let zi=0; zi<verticalResolution;zi++){
         let z = zi*verticalHeight/verticalResolution;
         let w = []
-        // let u = [];
+        let u = [];
+        let psi = [];
         for(let mi=0; mi < m.length; mi++){
             let w_zm = multiply(wsurf[mi],exp(multiply(complex('1i'), multiply(m[mi],z))))
-            //let u_zm = multiply(-1,divide(multiply(m[mi],w_zm),k[mi]))   
+            let u_zm = multiply(-1,divide(multiply(m[mi],w_zm),k[mi]))  
+            let psi_zm = multiply(complex('1i'),divide(u_zm,m[mi]))
             w.push(w_zm)
-            // if (k[mi] == 0 | m[mi].abs() == 0){
-            //     u.push(0)
-            // }else{
-            //     u.push(u_zm)
-            // }
+            if (k[mi] == 0 | m[mi].abs() == 0){
+                u.push(0)
+                psi.push(0)
+            }else{
+                u.push(u_zm)
+                psi.push(psi_zm)
+            }
         }
         wz.push(ifft(w).map((x)=>x.re));
-        // uz.push(ifft(u).map((x)=>x.re));
+        uz.push(ifft(u).map((x)=>x.re));
+        psiz.push(ifft(psi).map((x)=>x.re/u0));
     }
-    return {wz:wz}
+
+    return {wz:wz,uz:uz,psiz:psiz}
 }
 
 export {spectralSolve,fftfreq,pixelsToM,mToPixels}

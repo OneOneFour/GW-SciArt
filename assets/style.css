@@ -4,9 +4,19 @@ body{
     width:100vw;
     height:100vh;
     overflow: hidden ;
+    font-style:normal;
+    font-weight: 400; 
+    font-family: 'Fira Sans', Helvetica, Arial,sans-serif;
 }
 .control-panel{
     position: absolute;
     left:0.5rem;
     top:0.5rem;
+    background-color:white;
+    padding: 0.3rem 0.5rem;
+    border-radius: 15px;
+    box-shadow: 10px 5px 8px rgba(74, 74, 74, 0.4);
+}
+.slider-section{
+    padding: 0.25rem 0 ;
 }

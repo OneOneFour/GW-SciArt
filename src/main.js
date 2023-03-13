@@ -4,48 +4,73 @@ import perlin1D from './generator';
 import randomwords from 'random-words';
 import { spectralSolve } from './orography';
 import seedrandom from 'seedrandom';
+import icon from './icons';
 
+// Graphical Constants
 const canvas = document.getElementById("maincanvas");
 const ctx = canvas.getContext('2d');
-
 const optimalHeight = 300;
 let scaleFactor = (window.innerHeight/(3*optimalHeight));
 
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Interactive elemtns
 const speedSlider = document.getElementById("speedslider");
 const nSlider = document.getElementById("nslider");
 const seedInput = document.getElementById("seedinput");
+const speedSpan = document.getElementById('speedtext');
+const nspan = document.getElementById('ntext');
+
+// Constants
+const Lx = 70000;
+const Lz = 15000;
+const zres = 50;
 
 
+
+
+
+// Randomizer
 randomInput();
 function randomInput(){
     seedInput.value = randomwords(2).join(' ');
 }
-document.getElementById('randomizer').addEventListener('click',randomInput);
+const randomizerButton = document.getElementById('randomizer');
+randomizerButton.addEventListener('click',randomInput);
 
 
-let u = 300;
+// Speed Slider
+let u = 20;
 speedSlider.value = u;
 
 speedSlider.addEventListener("input",(e)=>{
     u = e.target.value;
+    speedSpan.innerHTML = u.toString() + ' m/s'
+
 })
 
+// N Slider
 let N=0.01;
 nSlider.value = N*100;
 
 nSlider.addEventListener('input',(e)=>{
     N = e.target.value / 100;
+    nspan.innerHTML = N.toString() + ' 1/s';
 })
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+// Apply icons
+const diceElem = document.createElement("span")
+diceElem.innerHTML = icon({ prefix: 'fas', iconName: 'dice' }).html
+randomizerButton.appendChild(diceElem);
 
+// Resize listener
 
 window.addEventListener("resize",()=>{
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     scaleFactor = (window.innerHeight/(3*optimalHeight));
-    draw(orthogs,colors,null);
+    draw(orthogs,colors,psiz);
 });
 
 
@@ -129,11 +154,11 @@ function drawMountains(orography,color='green'){
 }
 
 
-function drawClouds(wz){
+function drawClouds(wz,orography){
     let maxAlt = Math.max(...orography)*scaleFactor;
-    let yRes = (canvas.height - maxAlt)/vertRes
-    for(let z=0; z<vertRes;z++){
-        wz[z].map((w,i)=> w > 0.15 ? i : -1).filter((x)=>x>0).forEach((i)=>{
+    let yRes = (canvas.height - maxAlt)/zres
+    for(let z=0; z<zres;z++){
+        wz[z].map((w,i)=> w > 0.1 ? i : -1).filter((x)=>x>0).forEach((i)=>{
             let x = (i*canvas.width)/(orography.length-1)
             let y = (canvas.height - maxAlt - z*yRes)
             ctx.fillStyle ="white";
@@ -143,41 +168,47 @@ function drawClouds(wz){
     }
 }
 
-const Lx = 70000;
-const Lz = 15000;
-const zres = 50;
+function drawFlowGradient(psi,orography,steps=1){
+    let y0 = (100+Math.max(...orography))*scaleFactor;
+    let ystart = 0;
+    const styles=['darkblue','blue','lightblue']
+    for(let level=psi.length-1,ilevel=0; level>=0; level-= Math.ceil(psi.length/steps),ilevel++){
+        ctx.fillStyle=styles[ilevel];
+        ctx.beginPath();
+        ctx.moveTo(canvas.width,canvas.height);
+        ctx.lineTo(0,canvas.height);
+        ystart = 200*ilevel*scaleFactor
+        ctx.lineTo(0,y0);
+        for(let i=0; i<psi[level].length; i++){
+            let x = (i*canvas.width)/(orography.length-1);
+            let y = ystart - psi[level][i]*scaleFactor;
+            ctx.lineTo(x,y)
+        }
+        ctx.closePath();
+        ctx.fill();
+    }
+}
 
 function update(N,u,seed){
     const rng = seedrandom(seed);
     let N2 = N*N;
-    const mainOrthog =  generateOrography(rng,200,1,2,0.6,4,200,100);
-    const {wz} = spectralSolve(mainOrthog,Lx,Lz,zres,N2,u);
+    const mainOrthog =  generateOrography(rng,100,1,2,0.6,4,200,15);
+    const {wz,psiz} = spectralSolve(mainOrthog,Lx,Lz,zres,N2,u);
     return {orthogs:[
-        generateOrography(rng,200,1,2.5,0.6,1,200),
-        generateOrography(rng,200,1,2.5,0.8,2,215),
         mainOrthog
-    ],wz}
+    ],psiz}
 
 
 }
 
-function draw(orthograries,colors,wz){
-    
-
+function draw(orthograries,colors,psiz){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // Background Gradient 
-    drawGradient();
-    // drawMountains(bg2,'green');
-    // drawMountains(bg1,'darkgreen');
+    drawFlowGradient(psiz,orthograries[orthograries.length-1],3);
     for(let i=0;i<orthograries.length;i++){
         drawMountains(orthograries[i],colors[i]);
     }
-
-
-    //drawClouds(wz);
-
 }
-const {orthogs,wz} = update(nslider.value,speedslider.value,seedInput.value);
-console.log(wz)
+const {orthogs,psiz} = update(nslider.value,speedslider.value,seedInput.value);
 const colors = ['darkgreen','darkgreen','green'];
-draw(orthogs,colors,null);
+draw(orthogs,colors,psiz);

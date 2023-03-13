@@ -9,6 +9,8 @@
     "parcel-bundler": "^1.12.5"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.3.0",
+    "@fortawesome/free-solid-svg-icons": "^6.3.0",
     "math.js": "^1.1.46",
     "mathjs": "^11.6.0",
     "random-words": "^1.3.0",
