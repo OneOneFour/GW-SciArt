@@ -12,6 +12,7 @@ const ctx = canvas.getContext('2d');
 const optimalHeight = 300;
 let scaleFactor = (window.innerHeight/(3*optimalHeight));
 
+const colors = ['darkgreen','darkgreen','green'];
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -26,7 +27,6 @@ const nspan = document.getElementById('ntext');
 const Lx = 70000;
 const Lz = 15000;
 const zres = 50;
-
 
 
 
@@ -70,9 +70,14 @@ window.addEventListener("resize",()=>{
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     scaleFactor = (window.innerHeight/(3*optimalHeight));
-    draw(orthogs,colors,psiz);
+    draw(orthogs,psiz);
 });
 
+const generatorButton = document.getElementById('generator')
+generatorButton.addEventListener('click',()=>{
+    let {orthogs,psiz} = update(nslider.value,speedslider.value,seedInput.value);
+    draw(orthogs,psiz);
+})
 
 // let falloff = 10;
 // let falloffStrength = 5;
@@ -201,7 +206,7 @@ function update(N,u,seed){
 
 }
 
-function draw(orthograries,colors,psiz){
+function draw(orthograries,psiz){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // Background Gradient 
     drawFlowGradient(psiz,orthograries[orthograries.length-1],3);
@@ -209,6 +214,7 @@ function draw(orthograries,colors,psiz){
         drawMountains(orthograries[i],colors[i]);
     }
 }
-const {orthogs,psiz} = update(nslider.value,speedslider.value,seedInput.value);
-const colors = ['darkgreen','darkgreen','green'];
-draw(orthogs,colors,psiz);
+(function(){
+    let {orthogs,psiz} = update(nslider.value,speedslider.value,seedInput.value);
+    draw(orthogs,psiz);
+})()
