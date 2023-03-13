@@ -86,7 +86,7 @@ window.addEventListener("resize",()=>{
 const generatorButton = document.getElementById('generator')
 generatorButton.addEventListener('click',()=>{
     const rng = seedrandom(seedInput.value);
-    let idx = Math.floor(rng()*palette.length)
+    let idx = Math.floor(rng()*palette.length);
     let newVals = update(nslider.value,speedslider.value,seedInput.value);
     orthogs = newVals.orthogs;
     psiz = newVals.psiz;
@@ -190,9 +190,8 @@ function drawClouds(wz,orography){
 function drawFlowGradient(psi,orography,styles,steps=1,){
     let y0 = (100+Math.max(...orography))*scaleFactor;
     let ystart = 0;
-    let stylesR = styles.reverse()
     for(let level=psi.length-1,ilevel=0; level>=0; level-= Math.ceil(psi.length/steps),ilevel++){
-        ctx.fillStyle=stylesR[ilevel+1];
+        ctx.fillStyle=styles[styles.length-ilevel-1];
         ctx.beginPath();
         ctx.moveTo(canvas.width,canvas.height);
         ctx.lineTo(0,canvas.height);
