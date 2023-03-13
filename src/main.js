@@ -10,6 +10,14 @@ import icon from './icons';
 const canvas = document.getElementById("maincanvas");
 const ctx = canvas.getContext('2d');
 const optimalHeight = 300;
+
+let orthogs = null;
+let psiz = null;
+const palette = [
+    {'levels':['#D27685','#9E4784','#66347F','#37306B'],'mountain':'#76D2C3'},
+    {'levels':['#62CDFF','#62CDFF','#C9EEFF','#AA77FF']}
+]
+
 let scaleFactor = (window.innerHeight/(3*optimalHeight));
 
 const colors = ['darkgreen','darkgreen','green'];
@@ -67,16 +75,22 @@ randomizerButton.appendChild(diceElem);
 // Resize listener
 
 window.addEventListener("resize",()=>{
+    const rng = seedrandom(seedInput.value);
+    let idx = Math.floor(rng()*palette.length)
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     scaleFactor = (window.innerHeight/(3*optimalHeight));
-    draw(orthogs,psiz);
+    draw(orthogs[0],psiz,palette[idx]);
 });
 
 const generatorButton = document.getElementById('generator')
 generatorButton.addEventListener('click',()=>{
-    let {orthogs,psiz} = update(nslider.value,speedslider.value,seedInput.value);
-    draw(orthogs,psiz);
+    const rng = seedrandom(seedInput.value);
+    let idx = Math.floor(rng()*palette.length)
+    let newVals = update(nslider.value,speedslider.value,seedInput.value);
+    orthogs = newVals.orthogs;
+    psiz = newVals.psiz;
+    draw(orthogs[0],psiz,palette[idx]);
 })
 
 // let falloff = 10;
@@ -173,12 +187,12 @@ function drawClouds(wz,orography){
     }
 }
 
-function drawFlowGradient(psi,orography,steps=1){
+function drawFlowGradient(psi,orography,styles,steps=1,){
     let y0 = (100+Math.max(...orography))*scaleFactor;
     let ystart = 0;
-    const styles=['darkblue','blue','lightblue']
+    let stylesR = styles.reverse()
     for(let level=psi.length-1,ilevel=0; level>=0; level-= Math.ceil(psi.length/steps),ilevel++){
-        ctx.fillStyle=styles[ilevel];
+        ctx.fillStyle=stylesR[ilevel+1];
         ctx.beginPath();
         ctx.moveTo(canvas.width,canvas.height);
         ctx.lineTo(0,canvas.height);
@@ -206,15 +220,19 @@ function update(N,u,seed){
 
 }
 
-function draw(orthograries,psiz){
+function draw(orthography,psiz,palette){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle=palette.levels[palette.levels.length-1]
+    ctx.fillRect(0,0,canvas.width,canvas.height)
     // Background Gradient 
-    drawFlowGradient(psiz,orthograries[orthograries.length-1],3);
-    for(let i=0;i<orthograries.length;i++){
-        drawMountains(orthograries[i],colors[i]);
-    }
+    drawFlowGradient(psiz,orthography,palette.levels,3);
+    drawMountains(orthography,palette.mountain);
 }
 (function(){
-    let {orthogs,psiz} = update(nslider.value,speedslider.value,seedInput.value);
-    draw(orthogs,psiz);
+    const rng = seedrandom(seedInput.value);
+    let idx = Math.floor(rng()*palette.length)
+    let newStuff = update(nslider.value,speedslider.value,seedInput.value);
+    orthogs = newStuff.orthogs;
+    psiz = newStuff.psiz;
+    draw(orthogs[0],psiz,palette[idx]);
 })()
