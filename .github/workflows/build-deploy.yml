@@ -1,0 +1,26 @@
+name: Generate & Deploy
+on: 
+  push:
+    branches: [master]
+
+jobs:
+  gen-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - name: Install packages
+        run: npm install
+      - name: Generate Site
+        run: npm run build
+      - name: Deploy Site
+        uses: s0/git-publish-subdir-action@v2.4.0
+        env:
+          REPO: self
+          BRANCH: gh-pages
+          FOLDER: dist
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}

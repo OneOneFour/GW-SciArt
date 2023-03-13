@@ -2,7 +2,6 @@
   "name": "sciart",
   "version": "1.0.0",
   "description": "",
-
   "author": "",
   "license": "ISC",
   "devDependencies": {
@@ -23,5 +22,8 @@
   "browserslist": "> 0.25%",
   "engines": {
     "browsers": "> 0.25%"
+  },
+  "scripts":{
+    "build":"parcel build index.html"
   }
 }
